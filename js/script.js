@@ -57,3 +57,62 @@ designSelect.addEventListener('change', (e) => {
 })
 
 
+
+//dynamically enable and disable events checkboxes with competing times
+const activities = document.querySelector('.activities');
+const checkboxes = document.querySelectorAll('.activities input');
+activities.addEventListener('change', (e) => {
+    const checkedDT = e.target.getAttribute('data-day-and-time');
+    for (let i = 1; i < checkboxes.length; i++){
+        if(checkedDT === checkboxes[i].getAttribute('data-day-and-time') &&
+            e.target !== checkboxes[i] &&
+            e.target.checked){
+            checkboxes[i].disabled = true;
+        } else {
+            checkboxes[i].disabled = false;
+        }
+    }
+    //updatePrice()
+})
+
+function updatePrice(){
+    let total = 0;
+    for (let i = 0; i < checkboxes.length; i++){
+        if(checkboxes[i].checked){
+            total += parseInt(checkboxes[i].getAttribute('data-cost'));
+        }
+    }
+    const totalHTML = document.createElement('span');
+    
+    if(!document.querySelector('.activities span')){
+        activities.appendChild(totalHTML);
+        activities.children[8].textContent = `Total: $${total}`
+    } else {
+        activities.children[8].textContent = `Total: $${total}`
+    }
+}
+
+//display proper div based on payment method
+const paymentMethodSelector = document.getElementById('payment');
+const paypalDiv = document.getElementById('paypal');
+const bitcoinDiv = document.getElementById('bitcoin');
+const ccDiv = document.getElementById('credit-card')
+paymentMethodSelector[1].selected = true;
+paypalDiv.hidden = true;
+bitcoinDiv.hidden = true;
+paymentMethodSelector.addEventListener('change', (e) => {
+    const selected = e.target.value;
+    if (selected === 'credit card'){
+        ccDiv.hidden = false;
+        paypalDiv.hidden = true;
+        bitcoinDiv.hidden = true;
+    } else if (selected === 'paypal'){
+        paypalDiv.hidden = false;
+        ccDiv.hidden = true;
+        bitcoinDiv.hidden = true;
+    } else if (selected === 'bitcoin'){
+        bitcoinDiv.hidden = false;
+        ccDiv.hidden = true;
+        paypalDiv.hidden = true;
+    }
+})
