@@ -4,8 +4,8 @@ function getFocus(element){
 getFocus('name');
 
 //show-hide the other-title field
-const title = document.getElementById('other-title');
-title.style.display = 'none';
+const otherTitle = document.getElementById('other-title');
+otherTitle.style.display = 'none';
 const jobRole = document.querySelector('#title');
 jobRole.addEventListener('change', () => {
     const titleOption = jobRole.querySelectorAll('option');
@@ -115,4 +115,95 @@ paymentMethodSelector.addEventListener('change', (e) => {
         ccDiv.hidden = true;
         paypalDiv.hidden = true;
     }
+})
+
+//ID's
+const name = document.querySelector('#name');
+const email = document.querySelector('#mail');
+const title = document.querySelector('#title');
+const shirtColors = document.querySelector('#shirt-colors');
+const ccNum = document.querySelector('#cc-num');
+const ccZip = document.querySelector('#zip');
+const ccCVV = document.querySelector('#cvv');
+const ccExpMonth = document.querySelector('#exp-month');
+const ccExpYear = document.querySelector('#exp-year');
+
+
+function nameValidator (){
+    const nameValue = name.value;
+    if(name.value.length > 0){
+      name.style.borderColor = 'white';
+      return true;
+    } else {
+      name.style.borderColor = 'red';
+      return false;
+    }
+}
+
+function emailValidator(){
+    const emailValue = email.value;
+    const indexAt = emailValue.indexOf('@');
+    const indexPeriod = emailValue.lastIndexOf('.');
+  
+    if(indexAt > 1 && indexPeriod > indexAt + 1){
+      email.style.borderColor = 'white';
+      return true;
+    } else {
+      email.style.borderColor = 'red';
+      return false;
+    }
+}
+
+function shirtValidator(){}
+
+
+function activitiesValidator(){
+    let isOneSelected = false;
+    for (let i = 0; i < checkboxes.length; i++){
+        if (checkboxes[i].selected === true){
+            isOneSelected = true;
+        }
+    }
+    return isOneSelected.valueOf();
+}
+
+function ccValidator(){
+    if(paymentMethodSelector[1].selected = true){
+        if (ccNum.value.length >= 13 && ccNum.value.length <= 16){
+            if(ccZip.value.length === 5){
+                if (ccCVV.value.length === 3){
+                    return true;
+                } else {
+                    ccCVV.style.borderColor = 'red';
+                    return false;
+                }
+            } else {
+                ccZip.style.borderColor = 'red';
+                return false;
+            }
+        } else {
+            ccNum.style.borderColor = 'red';
+            return false;
+        }
+    } else {
+        return true;
+    }
+
+}
+
+
+
+document.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    nameValidator();
+    emailValidator();
+    activitiesValidator();
+    ccValidator();
+
+    // if(!nameValidator()||
+    //     !emailValidator()||
+    //     !shirtValidator()||
+    //     !ccValidator()){
+    //         e.preventDefault();
+    //     }
 })
