@@ -19,6 +19,17 @@ const designSelect = document.getElementById("design");
 const colorSelect = document.getElementById("color");
 
 
+//Payment IDs
+const paymentMethodSelector = document.getElementById('payment');
+const paypalDiv = document.getElementById('paypal');
+const bitcoinDiv = document.getElementById('bitcoin');
+const ccDiv = document.getElementById('credit-card')
+
+
+//Activities Classes
+const activities = document.querySelector('.activities');
+const checkboxes = document.querySelectorAll('.activities input');
+
 
 //put focus on the name field
 function getFocus(element){
@@ -100,14 +111,20 @@ function tshirtController(){
     })
 }
 
-const activities = document.querySelector('.activities');
-const checkboxes = document.querySelectorAll('.activities input');
+
 function activitiesController(){
     //dynamically enable and disable events checkboxes with competing times
     activities.addEventListener('change', (e) => {
+        //save the date and time of the target to a variable
         const checkedDT = e.target.getAttribute('data-day-and-time');
+        //loop through the checkboxes options
         for (let i = 0; i < checkboxes.length; i++){
+            //assign the date and time of a given checkbox to a variable
             let checkboxDT = checkboxes[i].getAttribute('data-day-and-time')
+            //if the date and time of the checked one and the [i] checkbox match
+            //AND you are not selected on the target
+                //then disable the checkbox
+                //else, enable it
             if(checkedDT === checkboxDT && e.target !== checkboxes[i]){
                 if(e.target.checked){
                     checkboxes[i].disabled = true;
@@ -118,6 +135,7 @@ function activitiesController(){
                 }
             }
         }
+        //update the price each time a box is checked or unchecked
         updatePrice()
     })
 }
@@ -148,10 +166,7 @@ function updatePrice(){
 }
 
 
-const paymentMethodSelector = document.getElementById('payment');
-const paypalDiv = document.getElementById('paypal');
-const bitcoinDiv = document.getElementById('bitcoin');
-const ccDiv = document.getElementById('credit-card')
+
 //display proper div based on payment method
 function paymentDivController(){
 
@@ -201,32 +216,36 @@ const nameError = document.createElement('span');
 const nameErrorChar = document.createElement('span');
 nameError.innerHTML = 'Please enter a first and last name';
 nameError.style.color = 'red';
-nameErrorChar.innerHTML = 'Invalid character. Use only letters';
+nameErrorChar.innerHTML = 'Please ensure you have entered a first and last name using only letters';
 nameErrorChar.style.color = 'red';
 const nameRegEx = /^\w+\s\w+$/;
 
 
 function nameValidator (){
-    name.addEventListener('focusout', (e) => {
-        const nameValue = name.value;
-        if(nameRegEx.test(String(name.value))){
-            //if the element before the input is the error message, remove it
-            if(name.previousElementSibling.style.color === 'red'){
-                name.parentElement.removeChild(name.parentElement.children[2]);
-                name.style.borderColor = '';
-            }
-          return true;
-        } else  if (!name.value){
-            name.style.borderColor = 'red';
-            name.parentNode.insertBefore(nameError, name);
-        } else {
-          name.style.borderColor = 'red';
-          name.parentNode.insertBefore(nameErrorChar, name);
-          return false;
+    const nameValue = name.value;
+    if(nameRegEx.test(String(name.value))){
+        //if the element before the input is the error message, remove it
+        if(name.previousElementSibling.style.color === 'red'){
+            name.parentElement.removeChild(name.parentElement.children[2]);
+            name.style.borderColor = '';
         }
-    })
+        //return true if the regex qualifications are met
+        return true;
+    //'throw' an error if there's no name present
+    } else  if (!name.value){
+        name.style.borderColor = 'red';
+        name.parentNode.insertBefore(nameError, name);
+        return false;
+    //'throw' another error if an unallowed character is used
+    } else {
+        name.style.borderColor = 'red';
+        name.parentNode.insertBefore(nameErrorChar, name);
+        return false;
+    }
 }
-nameValidator();
+//make the event listener work in real time before submit
+//I went with the focus out method as to not barrage the user with errors in the middle of their typing, eg. 'keyprees'
+name.addEventListener('focusout', nameValidator);
 
 function emailValidator(){
     //very very basic validator from project warmup
@@ -243,7 +262,7 @@ function emailValidator(){
       return false;
     }
 }
-//FIGURE OUT HOW TO HIGHLIGHT RED
+
 function activitiesValidator(){
     //create a variable defaulting to false that will be returned if no activities are checked
     let isOneSelected = false;
@@ -253,18 +272,23 @@ function activitiesValidator(){
             isOneSelected = true;
         }
     }
-    //if one is not selected, turn the border color to red
+    //if one is not selected, turn the legend color to red
     if (!isOneSelected){
-        activities.style.borderColor = 'red';
+        activities.children[0].style.color = 'red';
     }
     //return boolean value of variable
     return isOneSelected.valueOf();
 }
 
 function ccValidator(){
+    //execute only if credit card method is selected
     if(paymentMethodSelector[1].selected = true){
+        //if number length is >=13 and <= 16, move on to zip validation
         if (ccNum.value.length >= 13 && ccNum.value.length <= 16){
+            //zip must be 5 nums
             if(ccZip.value.length === 5){
+                //cvv must be 3 nums
+                //return true only if all 3 conditions are met, otherwise return falsy value and highlight red
                 if (ccCVV.value.length === 3){
                     return true;
                 } else {
@@ -289,16 +313,12 @@ function ccValidator(){
 
 document.querySelector('form').addEventListener('submit', (e) => {
     //call all validators to expose fields with bad data
-
     emailValidator();
     activitiesValidator();
     ccValidator();
-    
+
     //if any validators are triggered falsy, prevent form from submitting
-    if(!nameValidator()||
-        !emailValidator()||
-        !shirtValidator()||
-        !ccValidator()){
-            e.preventDefault();
-        }
+    if(!nameValidator() || !emailValidator() || !activitiesValidator() ||!ccValidator()){
+        e.preventDefault();
+    }
 })
