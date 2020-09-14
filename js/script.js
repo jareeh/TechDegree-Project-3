@@ -282,7 +282,7 @@ function activitiesValidator(){
 
 function ccValidator(){
     //execute only if credit card method is selected
-    if(paymentMethodSelector[1].selected = true){
+    if(paymentMethodSelector[1].selected){
         //if number length is >=13 and <= 16, move on to zip validation
         if (ccNum.value.length >= 13 && ccNum.value.length <= 16){
             //zip must be 5 nums
