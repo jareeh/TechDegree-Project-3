@@ -4,6 +4,7 @@ const email = document.querySelector('#mail');
 const title = document.querySelector('#title');
 const otherTitle = document.getElementById('other-title');
 
+
 //CreditCard IDs
 const ccNum = document.querySelector('#cc-num');
 const ccZip = document.querySelector('#zip');
@@ -28,9 +29,12 @@ function getFocus(element){
 
 //show-hide the other-title field
 function otherTitleController(){
+    //default the other title field to closed
     otherTitle.style.display = 'none';
+    //add event listener to title selector
     title.addEventListener('change', () => {
         const titleOption = title.querySelectorAll('option');
+        //if 'other' is selected, display the other title field, if not, don't display it
         if(titleOption[5].selected){
             otherTitle.style.display = 'block';
         } else {
@@ -42,26 +46,39 @@ function otherTitleController(){
 
 
 function tshirtController(){
-    // Get design and color options
+    // Get design and color options children
     const designOptions = designSelect.children;
     const colorOptions = colorSelect.children;
 
-    //initializer for initial state
+    //initializer for initial state of t-shirt selector
     //add the please select option and select it
     const pleaseSelect = document.createElement("option");
     pleaseSelect.text = "Please select a T-shirt theme";
     colorSelect.prepend(pleaseSelect);
     colorOptions[0].selected = true;
 
+    //if 'select theme' is selected
+        //hide the entire color options selector
+    //else excevute \/
+    if(designOptions[0].textContent === 'Select Theme'){
+        shirtColors.hidden = true;
+    } else {
+        shirtColors.hidden = false;
+    }
 
+    //add event listener to the design selector
     designSelect.addEventListener('change', (e) => {
         const selected = e.target.value
+
+        //if 'select theme' is NOT selected, and the placeholder options are still first, remove them and show color selector
         if(selected !== 'Select Theme' &&
             designOptions[0].textContent === 'Select Theme' &&
             colorOptions[0].textContent === 'Please select a T-shirt theme'){
             designSelect.removeChild(designOptions[0])
             colorSelect.removeChild(colorOptions[0]);
+            shirtColors.hidden = false;
         }
+        //if 'js puns' option selected, show appropriate color options
         if(selected === 'js puns'){
             colorOptions[0].selected = true;
             colorOptions[0].style.display = 'block';
@@ -70,6 +87,7 @@ function tshirtController(){
             colorOptions[3].style.display = 'none';
             colorOptions[4].style.display = 'none';
             colorOptions[5].style.display = 'none';
+        //if 'heart js' option selected, show appropriate color options
         } else if(selected === 'heart js'){
             colorOptions[3].selected = true;
             colorOptions[0].style.display = 'none';
@@ -82,12 +100,10 @@ function tshirtController(){
     })
 }
 
-
-
+const activities = document.querySelector('.activities');
+const checkboxes = document.querySelectorAll('.activities input');
 function activitiesController(){
     //dynamically enable and disable events checkboxes with competing times
-    const activities = document.querySelector('.activities');
-    const checkboxes = document.querySelectorAll('.activities input');
     activities.addEventListener('change', (e) => {
         const checkedDT = e.target.getAttribute('data-day-and-time');
         for (let i = 0; i < checkboxes.length; i++){
@@ -108,36 +124,49 @@ function activitiesController(){
 
 
 
-
 function updatePrice(){
+    //create total variable
     let total = 0;
+    //loop through the checkboxes
     for (let i = 0; i < checkboxes.length; i++){
+        //if they are checked, convert cost attribute to variable and add it to total
         if(checkboxes[i].checked){
             total += parseInt(checkboxes[i].getAttribute('data-cost'));
         }
     }
+    //create HTML code for total to display in
     const totalHTML = document.createElement('span');
     
+    //if the html doesn't exist, add it in and update the text to reflect the total
     if(!document.querySelector('.activities span')){
         activities.appendChild(totalHTML);
         activities.children[8].textContent = `Total: $${total}`
+    //else just update the total
     } else {
         activities.children[8].textContent = `Total: $${total}`
     }
 }
 
 
+const paymentMethodSelector = document.getElementById('payment');
+const paypalDiv = document.getElementById('paypal');
+const bitcoinDiv = document.getElementById('bitcoin');
+const ccDiv = document.getElementById('credit-card')
+//display proper div based on payment method
 function paymentDivController(){
-    //display proper div based on payment method
-    const paymentMethodSelector = document.getElementById('payment');
-    const paypalDiv = document.getElementById('paypal');
-    const bitcoinDiv = document.getElementById('bitcoin');
-    const ccDiv = document.getElementById('credit-card')
+
+    //PaymentDiv IDs
+
+    
+    //select credit card by default
     paymentMethodSelector[1].selected = true;
+    //hide paypay and bitcoin divs by default
     paypalDiv.hidden = true;
     bitcoinDiv.hidden = true;
+    //add event listener to the payment method selector
     paymentMethodSelector.addEventListener('change', (e) => {
         const selected = e.target.value;
+        //if credit card is selected, hide other divs and likewise for following code blocks
         if (selected === 'credit card'){
             ccDiv.hidden = false;
             paypalDiv.hidden = true;
@@ -167,42 +196,68 @@ paymentDivController();
 VALIDATOR FUNCTIONS 
 */
 
+//NAME ERROR COMPONENTS
+const nameError = document.createElement('span');
+const nameErrorChar = document.createElement('span');
+nameError.innerHTML = 'Please enter a first and last name';
+nameError.style.color = 'red';
+nameErrorChar.innerHTML = 'Invalid character. Use only letters';
+nameErrorChar.style.color = 'red';
+const nameRegEx = /^\w+\s\w+$/;
+
+
 function nameValidator (){
-    const nameValue = name.value;
-    if(name.value.length > 0){
-      name.style.borderColor = 'white';
-      return true;
-    } else {
-      name.style.borderColor = 'red';
-      return false;
-    }
+    name.addEventListener('focusout', (e) => {
+        const nameValue = name.value;
+        if(nameRegEx.test(String(name.value))){
+            //if the element before the input is the error message, remove it
+            if(name.previousElementSibling.style.color === 'red'){
+                name.parentElement.removeChild(name.parentElement.children[2]);
+                name.style.borderColor = '';
+            }
+          return true;
+        } else  if (!name.value){
+            name.style.borderColor = 'red';
+            name.parentNode.insertBefore(nameError, name);
+        } else {
+          name.style.borderColor = 'red';
+          name.parentNode.insertBefore(nameErrorChar, name);
+          return false;
+        }
+    })
 }
+nameValidator();
 
 function emailValidator(){
+    //very very basic validator from project warmup
     const emailValue = email.value;
     const indexAt = emailValue.indexOf('@');
     const indexPeriod = emailValue.lastIndexOf('.');
-  
+
+    //if the '@' symbol is not first, and the '.' is after the '@', return true
     if(indexAt > 1 && indexPeriod > indexAt + 1){
-      email.style.borderColor = 'white';
+    //   email.style.borderColor = 'white';
       return true;
     } else {
       email.style.borderColor = 'red';
       return false;
     }
 }
-
+//FIGURE OUT HOW TO HIGHLIGHT RED
 function activitiesValidator(){
     //create a variable defaulting to false that will be returned if no activities are checked
     let isOneSelected = false;
+    //loop through the checkboxes, if one+ is checked, turn above variable to true
     for (let i = 0; i < checkboxes.length; i++){
         if (checkboxes[i].checked){
             isOneSelected = true;
         }
     }
+    //if one is not selected, turn the border color to red
     if (!isOneSelected){
         activities.style.borderColor = 'red';
     }
+    //return boolean value of variable
     return isOneSelected.valueOf();
 }
 
@@ -234,7 +289,7 @@ function ccValidator(){
 
 document.querySelector('form').addEventListener('submit', (e) => {
     //call all validators to expose fields with bad data
-    nameValidator();
+
     emailValidator();
     activitiesValidator();
     ccValidator();
